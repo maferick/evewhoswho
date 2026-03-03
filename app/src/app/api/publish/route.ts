@@ -7,6 +7,7 @@ import {
   validateOrgchart,
   writeSnapshot,
 } from '@/lib/config/orgchart';
+import { cacheRenderedArtifacts } from '@/lib/render';
 
 export async function POST(req: NextRequest) {
   const session = await requireAdminSession(req);
@@ -30,11 +31,19 @@ export async function POST(req: NextRequest) {
   }
 
   await savePublishedOrgchart(draft);
+  const render = await cacheRenderedArtifacts(draft);
   const snapshotPath = await writeSnapshot(draft, body.actor ?? session.characterName);
 
   return NextResponse.json({
     ok: true,
     publishedBy: body.actor ?? session.characterName,
     snapshotPath,
+    chartHash: render.hash,
+    artifacts: {
+      svgLatest: '/api/chart.svg',
+      pngLatest: '/api/chart.png',
+      svgImmutable: `/api/chart.svg?hash=${render.hash}`,
+      pngImmutable: `/api/chart.png?hash=${render.hash}`,
+    },
   });
 }
