@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getDefaultSession } from '@/lib/auth';
+import { requireAdminSession } from '@/lib/auth';
 import { loadDraftOrgchart, saveDraftOrgchart, validateOrgchart } from '@/lib/config/orgchart';
 import type { OrgchartDocument } from '@/lib/types';
 
-function ensureAdmin() {
-  const session = getDefaultSession();
-  return session.user.role === 'admin';
-}
-
-export async function GET() {
-  if (!ensureAdmin()) {
+export async function GET(req: NextRequest) {
+  const session = await requireAdminSession(req);
+  if (!session) {
     return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   }
 
@@ -21,11 +17,16 @@ export async function GET() {
     ok: validation.valid,
     data: orgchart,
     errors: validation.errors,
+    actor: {
+      characterId: session.characterId,
+      characterName: session.characterName,
+    },
   });
 }
 
 export async function PUT(req: NextRequest) {
-  if (!ensureAdmin()) {
+  const session = await requireAdminSession(req);
+  if (!session) {
     return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   }
 
@@ -38,6 +39,10 @@ export async function PUT(req: NextRequest) {
       ok: validation.valid,
       data: body,
       errors: validation.errors,
+      actor: {
+        characterId: session.characterId,
+        characterName: session.characterName,
+      },
     },
     { status: validation.valid ? 200 : 422 },
   );
