@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getDefaultSession } from '@/lib/auth';
+import { requireAdminSession } from '@/lib/auth';
 import {
   loadDraftOrgchart,
   savePublishedOrgchart,
@@ -8,13 +8,8 @@ import {
   writeSnapshot,
 } from '@/lib/config/orgchart';
 
-function ensureAdmin() {
-  const session = getDefaultSession();
-  return session.user.role === 'admin' ? session : null;
-}
-
 export async function POST(req: NextRequest) {
-  const session = ensureAdmin();
+  const session = await requireAdminSession(req);
   if (!session) {
     return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   }
@@ -35,11 +30,11 @@ export async function POST(req: NextRequest) {
   }
 
   await savePublishedOrgchart(draft);
-  const snapshotPath = await writeSnapshot(draft, body.actor ?? session.user.email);
+  const snapshotPath = await writeSnapshot(draft, body.actor ?? session.characterName);
 
   return NextResponse.json({
     ok: true,
-    publishedBy: body.actor ?? session.user.email,
+    publishedBy: body.actor ?? session.characterName,
     snapshotPath,
   });
 }
