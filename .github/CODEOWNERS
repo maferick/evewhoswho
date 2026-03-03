@@ -1,0 +1,6 @@
+# Default code owners
+* @codex-maintainers
+
+/app/ @codex-maintainers
+/schemas/ @codex-maintainers
+/docs/ @codex-maintainers
