@@ -36,3 +36,57 @@ export type PublishRequest = {
   chart: ChartRenderPayload;
   publishedBy: string;
 };
+
+export type OrgchartEntity = {
+  id: string;
+  name: string;
+};
+
+export type OrgchartRole = OrgchartEntity & {
+  teamId: string;
+};
+
+export type OrgchartTeam = OrgchartEntity & {
+  directorateId: string;
+};
+
+export type OrgchartDirectorate = OrgchartEntity & {
+  corporationId: string;
+};
+
+export type OrgchartNodes = {
+  roles: OrgchartRole[];
+  directorates: OrgchartDirectorate[];
+  teams: OrgchartTeam[];
+  corporations: OrgchartEntity[];
+};
+
+export type OrgchartEdge = {
+  id: string;
+  sourceId: string;
+  targetId: string;
+};
+
+export type OrgchartDocument = {
+  meta: {
+    version: number;
+    title: string;
+    updatedAt: string;
+  };
+  nodes: OrgchartNodes;
+  edges: OrgchartEdge[];
+  permissions: {
+    adminCharacterIds: number[];
+  };
+};
+
+export type ValidationErrorItem = {
+  path: string;
+  message: string;
+  code: string;
+};
+
+export type ValidationResult = {
+  valid: boolean;
+  errors: ValidationErrorItem[];
+};
