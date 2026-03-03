@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+app/node_modules/
+
+# build outputs
+.next/
+app/.next/
+out/
+
+# test outputs
+playwright-report/
+app/playwright-report/
+coverage/
+
+# environment + local data
+.env
+.env.local
+.env.*.local
+data/
+
+# misc
+.DS_Store
+*.log
