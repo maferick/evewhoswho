@@ -2,9 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
-
-import type { ErrorObject } from 'ajv';
+import type { ErrorObject, ValidateFunction } from 'ajv';
 import type {
   AppConfig,
   OrgchartDocument,
@@ -19,8 +17,7 @@ const defaultConfig: AppConfig = {
   canPublish: true,
 };
 
-const ajv = new Ajv({ allErrors: true, strict: false });
-addFormats(ajv);
+const ajv = new Ajv({ allErrors: true });
 
 function resolveSchemaPath(): string {
   const candidates = [
@@ -37,7 +34,7 @@ const DRAFT_PATH = path.join(DATA_DIR, 'orgchart.draft.json');
 const PUBLISHED_PATH = path.join(DATA_DIR, 'orgchart.published.json');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 
-let validator: ReturnType<Ajv['compile']> | null = null;
+let validator: ValidateFunction | null = null;
 
 async function getValidator() {
   if (validator) {
@@ -105,7 +102,7 @@ function toValidationItems(errors: ErrorObject[] | null | undefined): Validation
   }
 
   return errors.map((error) => ({
-    path: error.instancePath || '/',
+    path: String(('instancePath' in error && error.instancePath) ? error.instancePath : '/'),
     message: error.message ?? 'Invalid value',
     code: `schema:${error.keyword}`,
   }));

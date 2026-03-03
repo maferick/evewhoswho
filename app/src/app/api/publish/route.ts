@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/auth';
+import { appendAuditEntry, summarizeChanges } from '@/lib/audit';
 import {
   loadDraftOrgchart,
+  loadPublishedOrgchart,
   savePublishedOrgchart,
   validateOrgchart,
   writeSnapshot,
 } from '@/lib/config/orgchart';
-import { cacheRenderedArtifacts } from '@/lib/render';
+import { cacheRenderedArtifacts, hashOrgchart } from '@/lib/render';
 
 export async function POST(req: NextRequest) {
   const session = await requireAdminSession(req);
@@ -16,9 +18,11 @@ export async function POST(req: NextRequest) {
   }
 
   const body = (await req.json().catch(() => ({}))) as { actor?: string };
+  const actor = body.actor ?? session.characterName;
+
+  // 1. Validate draft
   const draft = await loadDraftOrgchart();
   const validation = await validateOrgchart(draft);
-
   if (!validation.valid) {
     return NextResponse.json(
       {
@@ -30,13 +34,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const previousPublished = await loadPublishedOrgchart();
+
+  // 2. Snapshot draft
+  const snapshotPath = await writeSnapshot(draft, actor);
+
+  // 3. Promote draft to published
   await savePublishedOrgchart(draft);
+
+  // 4. Regenerate artifacts
   const render = await cacheRenderedArtifacts(draft);
-  const snapshotPath = await writeSnapshot(draft, body.actor ?? session.characterName);
+
+  // 5. Write audit entry
+  const configHash = hashOrgchart(draft);
+  const changeSummary = summarizeChanges(previousPublished, draft);
+  await appendAuditEntry({
+    actor,
+    timestamp: new Date().toISOString(),
+    configHash,
+    changeSummary,
+  });
 
   return NextResponse.json({
     ok: true,
-    publishedBy: body.actor ?? session.characterName,
+    publishedBy: actor,
     snapshotPath,
     chartHash: render.hash,
     artifacts: {
