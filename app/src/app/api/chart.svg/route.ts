@@ -1,25 +1,36 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-import { getSampleChart } from '@/lib/chart';
+import { loadPublishedOrgchart } from '@/lib/config/orgchart';
+import { cacheRenderedArtifacts, readCachedArtifact } from '@/lib/render';
 
-export async function GET() {
-  const chart = getSampleChart();
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="280" height="140" viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
-  <rect width="280" height="140" fill="#111827"/>
-  <line x1="75" y1="60" x2="180" y2="60" stroke="#9ca3af" stroke-width="2"/>
-  ${chart.nodes
-    .map(
-      (node) =>
-        `<circle cx="${node.x}" cy="${node.y}" r="30" fill="#2563eb"/><text x="${node.x}" y="${node.y + 5}" text-anchor="middle" fill="#fff" font-size="12">${node.label}</text>`,
-    )
-    .join('\n  ')}
-</svg>`;
+export async function GET(req: NextRequest) {
+  const hash = req.nextUrl.searchParams.get('hash') ?? undefined;
+  const cached = await readCachedArtifact('svg', hash);
 
-  return new NextResponse(svg, {
+  if (cached) {
+    const immutable = Boolean(hash);
+    return new NextResponse(cached, {
+      headers: {
+        'content-type': 'image/svg+xml; charset=utf-8',
+        'cache-control': immutable ? 'public, max-age=31536000, immutable' : 'public, max-age=15, stale-while-revalidate=30',
+        ...(hash ? { 'content-disposition': `inline; filename=\"chart.${hash}.svg\"` } : {}),
+      },
+    });
+  }
+
+  if (hash) {
+    return NextResponse.json({ ok: false, error: 'Artifact not found for requested hash' }, { status: 404 });
+  }
+
+  const published = await loadPublishedOrgchart();
+  const artifact = await cacheRenderedArtifacts(published);
+
+  return new NextResponse(artifact.svg, {
     headers: {
       'content-type': 'image/svg+xml; charset=utf-8',
-      'cache-control': 'no-store',
+      'cache-control': 'public, max-age=15, stale-while-revalidate=30',
+      etag: `"${artifact.hash}"`,
+      'x-chart-hash': artifact.hash,
     },
   });
 }

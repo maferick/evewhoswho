@@ -208,6 +208,15 @@ export async function loadDraftOrgchart(): Promise<OrgchartDocument> {
   return fallback;
 }
 
+export async function loadPublishedOrgchart(): Promise<OrgchartDocument> {
+  const published = await readJson(PUBLISHED_PATH);
+  if (published) {
+    return published;
+  }
+
+  return getDefaultOrgchart();
+}
+
 export async function saveDraftOrgchart(orgchart: OrgchartDocument): Promise<void> {
   const next = {
     ...orgchart,
