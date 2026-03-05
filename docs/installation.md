@@ -1,46 +1,74 @@
 # Installation
 
+This guide covers local development and containerized startup.
+
 ## Prerequisites
 
-- Docker + Docker Compose **or** Node.js 20+
-- An EVE SSO application (for admin login)
+- **Option A (Docker):** Docker Engine + Docker Compose
+- **Option B (Local runtime):** Node.js 20+
+- EVE SSO application credentials if you need admin login
 
-## Option A: Docker (recommended)
+## 1) Configure environment
 
-1. Copy environment template:
-   ```bash
-   cp .env.example .env
-   ```
-2. Fill in EVE SSO credentials in `.env`.
-3. Start the stack:
-   ```bash
-   docker compose up --build
-   ```
-4. Open `http://localhost:3000`.
+Create a local env file:
 
-## Option B: Local Node.js runtime
+```bash
+cp .env.example .env
+```
 
-1. Copy environment template:
-   ```bash
-   cp .env.example .env
-   ```
-2. Create data directory:
-   ```bash
-   mkdir -p data
-   ```
-3. Install and run:
-   ```bash
-   cd app
-   npm install
-   DATA_DIR=../data npm run dev
-   ```
+At minimum, set:
 
-## Verify basic routes
+- `SESSION_SECRET` (required)
+- `EVE_SSO_CLIENT_ID`, `EVE_SSO_CLIENT_SECRET`, `EVE_SSO_CALLBACK_URL` (required for login)
+- `DATA_DIR` (recommended for predictable storage location)
 
-- Public viewer: `GET /chart`
-- SVG artifact: `GET /api/chart.svg`
-- Session status: `GET /api/auth/session`
+## 2) Start the application
+
+### Option A: Docker (recommended)
+
+```bash
+docker compose up --build
+```
+
+This maps `./data` on your host to `/data` in the container.
+
+### Option B: Local Node.js runtime
+
+```bash
+cd app
+npm install
+npm run dev
+```
+
+By default, local runtime stores data under `app/data` unless `DATA_DIR` is set.
+
+## 3) Verify key routes
+
+- Public viewer: <http://localhost:3000/chart>
+- Admin: <http://localhost:3000/admin>
+- Session status: <http://localhost:3000/api/auth/session>
+- SVG artifact: <http://localhost:3000/api/chart.svg>
+
+## First-time admin access checklist
+
+1. Log in once via `/admin` and complete EVE SSO callback.
+2. Add your EVE character ID to `permissions.adminCharacterIds` in the draft config file.
+3. Reload `/admin`; you should now have edit/publish access.
 
 ## Persistent data notes
 
-This project intentionally uses no SQL. Ensure `DATA_DIR` is mapped to persistent storage in production so draft/published configs, snapshots, and `audit.log` survive container restarts.
+This project intentionally uses no SQL database.
+
+Ensure `DATA_DIR` points to persistent storage in production so the following survive restarts:
+
+- `orgchart.draft.json`
+- `orgchart.published.json`
+- `snapshots/*`
+- `render-cache/*`
+- `audit.log`
+
+## Troubleshooting
+
+- **"Missing required env var" errors:** verify `.env` values and restart the process/container.
+- **Not admin after successful login:** confirm your character ID is in `permissions.adminCharacterIds`.
+- **Data disappears after restart:** ensure `DATA_DIR` is mounted to a persistent host volume.
