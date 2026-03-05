@@ -21,9 +21,16 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      { ok: false, error: error instanceof Error ? error.message : 'SeAT test failed' },
-      { status: 502 },
-    );
+    const message = error instanceof Error ? error.message : 'SeAT test failed';
+
+    if (message === 'SEAT_* not configured') {
+      return NextResponse.json({ ok: false, error: 'SEAT_* not configured' }, { status: 500 });
+    }
+
+    if (message.includes('SeAT request failed (401):')) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized (check X-Token)' }, { status: 401 });
+    }
+
+    return NextResponse.json({ ok: false, error: message }, { status: 502 });
   }
 }
