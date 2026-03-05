@@ -4,12 +4,13 @@ import { loadPublishedOrgchart } from '@/lib/config/orgchart';
 import { cacheRenderedArtifacts, readCachedArtifact } from '@/lib/render';
 
 export async function GET(req: NextRequest) {
+  const toBody = (buffer: Buffer) => new Uint8Array(buffer);
   const hash = req.nextUrl.searchParams.get('hash') ?? undefined;
   const cached = await readCachedArtifact('png', hash);
 
   if (cached) {
     const immutable = Boolean(hash);
-    return new NextResponse(cached, {
+    return new NextResponse(toBody(cached), {
       headers: {
         'content-type': 'image/png',
         'cache-control': immutable
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return new NextResponse(artifact.png, {
+  return new NextResponse(toBody(artifact.png), {
     headers: {
       'content-type': 'image/png',
       'cache-control': 'public, max-age=15, stale-while-revalidate=30',
