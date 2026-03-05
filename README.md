@@ -58,6 +58,8 @@ Fill in `.env` values (especially EVE SSO + `SESSION_SECRET`).
 docker compose up --build
 ```
 
+`docker-compose.yml` supports both `.env` (`env_file`) and Compose/Portainer stack environment variables.
+
 Open:
 
 - Public chart: <http://localhost:3000/chart>
@@ -147,6 +149,8 @@ Build and run with compose:
 ```bash
 docker compose up --build
 ```
+
+Compose loads `.env` automatically and also allows overriding variables from the shell/stack environment (for example in Portainer).
 
 Or standalone:
 

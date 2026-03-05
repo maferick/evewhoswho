@@ -5,11 +5,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    env_file:
+      - .env
     environment:
-      EVE_SSO_CLIENT_ID: ${EVE_SSO_CLIENT_ID}
-      EVE_SSO_CLIENT_SECRET: ${EVE_SSO_CLIENT_SECRET}
-      EVE_SSO_CALLBACK_URL: ${EVE_SSO_CALLBACK_URL}
-      SESSION_SECRET: ${SESSION_SECRET}
+      # These can come from .env (via env_file) or from the compose runtime environment
+      # (for example Portainer stack environment variables).
+      EVE_SSO_CLIENT_ID:
+      EVE_SSO_CLIENT_SECRET:
+      EVE_SSO_CALLBACK_URL:
+      SESSION_SECRET:
       DATA_DIR: ${DATA_DIR:-/data}
     volumes:
       - ./data:/data

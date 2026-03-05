@@ -20,11 +20,13 @@ The script installs required apt packages, ensures Node.js 20.x is available, in
 
 ## 1) Configure environment
 
-Create a local env file:
+Create a local env file (recommended for local Docker/CLI use):
 
 ```bash
 cp .env.example .env
 ```
+
+If you deploy via Portainer stacks, you can set the same variables in the stack environment instead of mounting/providing `.env`.
 
 At minimum, set:
 
@@ -40,7 +42,7 @@ At minimum, set:
 docker compose up --build
 ```
 
-This maps `./data` on your host to `/data` in the container.
+This maps `./data` on your host to `/data` in the container. Compose reads variables from `.env` via `env_file`, and Portainer can inject them from stack environment variables as well.
 
 ### Option B: Local Node.js runtime
 
