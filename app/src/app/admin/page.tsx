@@ -104,6 +104,7 @@ export default function AdminPage() {
         </button>
       </p>
       <p>{status}</p>
+      <p><a href="/admin/source/seat">SeAT Source Control</a></p>
       <h2>Draft JSON Editor</h2>
       <textarea
         aria-label="Draft orgchart JSON"
