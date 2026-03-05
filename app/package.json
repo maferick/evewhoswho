@@ -5,25 +5,27 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "ci": "npm run build && npm audit --audit-level=high",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "bootstrap:deps": "npx -y npm-check-updates@latest -u && rm -rf node_modules package-lock.json && npm install && npm audit --audit-level=high && npm run build"
   },
   "dependencies": {
-    "next": "14.2.5",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "ajv": "8.17.1"
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ajv": "^8.17.1"
   },
   "devDependencies": {
-    "@types/node": "20.14.10",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "eslint": "8.57.0",
-    "eslint-config-next": "14.2.5",
-    "typescript": "5.5.3",
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.5",
+    "typescript": "^5.5.3",
     "vitest": "^2.1.8",
     "@playwright/test": "^1.50.1"
   }

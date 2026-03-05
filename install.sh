@@ -41,10 +41,12 @@ else
   echo "==> Node.js already installed: $(node -v)"
 fi
 
-echo "==> Installing npm dependencies"
+echo "==> Bootstrapping npm dependencies (upgrade, install, audit, build)"
 cd "$APP_DIR"
-npm install --no-audit --no-fund
-echo "   (Tip: run 'cd $APP_DIR && npm audit' anytime to review dependency vulnerabilities.)"
+npm run bootstrap:deps
+
+echo "==> Verifying deterministic install via npm ci"
+npm ci
 
 cd "$REPO_ROOT"
 if [[ ! -f "$REPO_ROOT/.env" ]]; then
