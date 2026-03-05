@@ -94,6 +94,7 @@ All variables are read by the Next.js process.
 | `EVE_SSO_CLIENT_SECRET` | Yes (for login) | EVE SSO OAuth client secret. |
 | `EVE_SSO_CALLBACK_URL` | Yes (for login) | OAuth callback URL registered with EVE SSO (example: `http://localhost:3000/api/auth/callback`). |
 | `SESSION_SECRET` | Yes | Secret used to encrypt/sign session cookie payloads. |
+| `BOOTSTRAP_ADMIN_CHARACTER_NAME` | Optional | Bootstrap admin character name. If it matches the logged-in EVE character name (case-insensitive), admin access is allowed even before `permissions.adminCharacterIds` is configured. |
 | `DATA_DIR` | Recommended | Data directory for drafts, published config, snapshots, render cache, and `audit.log`. |
 
 ### `DATA_DIR` contents
@@ -108,9 +109,10 @@ All variables are read by the Next.js process.
 
 1. Visit `/admin`.
 2. Authenticate with EVE SSO.
-3. Ensure your character ID is listed in `permissions.adminCharacterIds`.
-4. Edit draft JSON and click **Save & Validate Draft**.
-5. Click **Publish** to snapshot, promote, render artifacts, and append audit log entry.
+3. (Optional bootstrap) Set `BOOTSTRAP_ADMIN_CHARACTER_NAME` to your exact EVE character name in `.env` for first-time access.
+4. Ensure your character ID is listed in `permissions.adminCharacterIds` for long-term allowlist control.
+5. Edit draft JSON and click **Save & Validate Draft**.
+6. Click **Publish** to snapshot, promote, render artifacts, and append audit log entry.
 
 ## Core API surface
 

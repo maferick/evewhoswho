@@ -1,5 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 
+import { getRequiredEnv } from '@/lib/env';
+
 const SESSION_COOKIE_NAME = 'evewhoswho_session';
 const STATE_COOKIE_NAME = 'evewhoswho_sso_state';
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
@@ -23,11 +25,7 @@ function b64UrlDecode(value: string): Buffer {
 }
 
 function getSessionSecretKey(): Buffer {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret) {
-    throw new Error('Missing required env var: SESSION_SECRET');
-  }
-
+  const secret = getRequiredEnv('SESSION_SECRET');
   return createHash('sha256').update(secret).digest();
 }
 

@@ -14,6 +14,7 @@ services:
       EVE_SSO_CLIENT_SECRET:
       EVE_SSO_CALLBACK_URL:
       SESSION_SECRET:
+      BOOTSTRAP_ADMIN_CHARACTER_NAME:
       DATA_DIR: ${DATA_DIR:-/data}
     volumes:
       - ./data:/data
