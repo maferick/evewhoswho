@@ -8,6 +8,16 @@ This guide covers local development and containerized startup.
 - **Option B (Local runtime):** Node.js 20+
 - EVE SSO application credentials if you need admin login
 
+## 0) Ubuntu 24.04 one-command installer
+
+If you are on Ubuntu 24.04, you can run the repository installer to set up prerequisites and app dependencies:
+
+```bash
+./install.sh
+```
+
+The script installs required apt packages, ensures Node.js 20.x is available, installs `app/` npm dependencies, creates `.env` from `.env.example` if missing, and creates `./data`.
+
 ## 1) Configure environment
 
 Create a local env file:

@@ -45,8 +45,10 @@ There is **no SQL database**. Persistent state is stored in files under `DATA_DI
 ```bash
 git clone https://github.com/maferick/evewhoswho.git
 cd evewhoswho
-cp .env.example .env
+./install.sh
 ```
+
+The installer targets Ubuntu 24.04, installs system/runtime prerequisites, installs npm dependencies, and creates `.env` from `.env.example` if needed.
 
 Fill in `.env` values (especially EVE SSO + `SESSION_SECRET`).
 
