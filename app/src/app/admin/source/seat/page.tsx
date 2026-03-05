@@ -12,8 +12,8 @@ export default function SeatSourcePage() {
     const payload = (await response.json()) as { ok?: boolean; error?: string; generatedAt?: string };
     if (!response.ok || !payload.ok) {
       const error = payload.error ?? 'unknown error';
-      if (error.includes('Missing required env var: SEAT_BASE_URL') || error.includes('Missing required env var: SEAT_API_KEY')) {
-        setStatus(`Failed: ${error}. Add SEAT_BASE_URL and SEAT_API_KEY to your environment, then restart the app.`);
+      if (error.includes('SEAT_* not configured')) {
+        setStatus('Failed: SEAT_* not configured. Add SEAT_BASE_URL and SEAT_TOKEN to the repository root .env, then restart the app.');
         return;
       }
 

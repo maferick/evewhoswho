@@ -1,3 +1,5 @@
+import { ensureServerEnv } from '@/lib/env/server-env';
+
 export type SeatUser = {
   user_id: number;
   character_ids: number[];
@@ -18,38 +20,40 @@ type SeatPage<T> = {
 };
 
 function getSeatBaseUrl(): string {
+  ensureServerEnv();
   const baseUrl = process.env.SEAT_BASE_URL;
   if (!baseUrl) {
-    throw new Error('Missing required env var: SEAT_BASE_URL');
+    throw new Error('SEAT_* not configured');
   }
 
   return baseUrl.replace(/\/$/, '');
 }
 
-function getSeatApiKey(): string {
-  const apiKey = process.env.SEAT_API_KEY;
-  if (!apiKey) {
-    throw new Error('Missing required env var: SEAT_API_KEY');
+function getSeatToken(): string {
+  ensureServerEnv();
+  const token = process.env.SEAT_TOKEN;
+  if (!token) {
+    throw new Error('SEAT_* not configured');
   }
 
-  return apiKey;
+  return token;
 }
 
 export class SeatClient {
   private readonly baseUrl: string;
 
-  private readonly apiKey: string;
+  private readonly token: string;
 
-  constructor(baseUrl = getSeatBaseUrl(), apiKey = getSeatApiKey()) {
+  constructor(baseUrl = getSeatBaseUrl(), token = getSeatToken()) {
     this.baseUrl = baseUrl;
-    this.apiKey = apiKey;
+    this.token = token;
   }
 
   private async request<T>(pathOrUrl: string): Promise<SeatPage<T>> {
     const url = pathOrUrl.startsWith('http') ? pathOrUrl : `${this.baseUrl}${pathOrUrl}`;
     const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${this.apiKey}`,
+        'X-Token': this.token,
         Accept: 'application/json',
       },
       cache: 'no-store',
