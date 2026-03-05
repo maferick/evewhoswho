@@ -2,6 +2,16 @@ import type { OrgchartDocument, OrgchartEdge } from '@/lib/types';
 import { getDefaultOrgchart } from '@/lib/config/orgchart';
 import type { SeatMapping, SeatSnapshot } from '@/lib/seat/storage';
 
+const shouldLogSeatBuildDebug = process.env.SEAT_BUILD_DEBUG === '1';
+
+function logSeatBuildDebug(message: string, context: Record<string, unknown>): void {
+  if (!shouldLogSeatBuildDebug) {
+    return;
+  }
+
+  console.info(message, context);
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -26,7 +36,7 @@ export function buildOrgchartFromSeat(snapshot: SeatSnapshot, mapping: SeatMappi
   const teamNames = new Map<string, string>();
   let mappedRoles = 0;
 
-  console.info('[seat/build] counts', {
+  logSeatBuildDebug('[seat/build] counts', {
     rolesFetched: snapshot.roles.length,
     usersFetched: snapshot.users.length,
     includedRoles: includeRoleSet.size,
@@ -60,14 +70,14 @@ export function buildOrgchartFromSeat(snapshot: SeatSnapshot, mapping: SeatMappi
       teamId,
     });
 
-    console.info('[seat/build] role members', {
+    logSeatBuildDebug('[seat/build] role members', {
       roleId: role.id,
       roleTitle: role.title,
       members: userCount,
     });
   }
 
-  console.info('[seat/build] included mapping summary', {
+  logSeatBuildDebug('[seat/build] included mapping summary', {
     includedRoles: includeRoleSet.size,
     mappedIncludedRoles: mappedRoles,
   });
