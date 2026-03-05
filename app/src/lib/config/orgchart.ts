@@ -18,6 +18,10 @@ const defaultConfig: AppConfig = {
 };
 
 const ajv = new Ajv({ allErrors: true });
+ajv.addFormat('date-time', {
+  type: 'string',
+  validate: (value: string) => !Number.isNaN(Date.parse(value)),
+});
 
 function resolveSchemaPath(): string {
   const candidates = [
