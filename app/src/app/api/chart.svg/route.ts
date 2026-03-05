@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   if (cached) {
     const immutable = Boolean(hash);
-    return new NextResponse(cached, {
+    return new NextResponse(new Uint8Array(cached), {
       headers: {
         'content-type': 'image/svg+xml; charset=utf-8',
         'cache-control': immutable ? 'public, max-age=31536000, immutable' : 'public, max-age=15, stale-while-revalidate=30',
