@@ -96,6 +96,8 @@ All variables are read by the Next.js process.
 | `SESSION_SECRET` | Yes | Secret used to encrypt/sign session cookie payloads. |
 | `BOOTSTRAP_ADMIN_CHARACTER_NAME` | Optional | Bootstrap admin character name. If it matches the logged-in EVE character name (case-insensitive), admin access is allowed even before `permissions.adminCharacterIds` is configured. |
 | `DATA_DIR` | Recommended | Data directory for drafts, published config, snapshots, render cache, and `audit.log`. |
+| `SEAT_BASE_URL` | Yes (for SeAT sync/test) | Base URL for your SeAT instance (example: `https://seat.example.com`). |
+| `SEAT_API_KEY` | Yes (for SeAT sync/test) | SeAT API key used for `/api/v2/users` and `/api/v2/roles`. |
 
 ### `DATA_DIR` contents
 

@@ -33,6 +33,7 @@ At minimum, set:
 - `SESSION_SECRET` (required)
 - `EVE_SSO_CLIENT_ID`, `EVE_SSO_CLIENT_SECRET`, `EVE_SSO_CALLBACK_URL` (required for login)
 - `DATA_DIR` (recommended for predictable storage location)
+- `SEAT_BASE_URL`, `SEAT_API_KEY` (required for SeAT Source Control test/sync)
 
 ## 2) Start the application
 
