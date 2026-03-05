@@ -12,12 +12,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <header>
-          <nav>
-            <Link href="/chart">Chart</Link> | <Link href="/admin">Admin</Link>
+        <header className="site-header">
+          <nav className="site-nav" aria-label="Primary">
+            <Link href="/chart">Chart</Link>
+            <Link href="/admin">Admin</Link>
           </nav>
         </header>
-        <main>{children}</main>
+        <main className="site-main">{children}</main>
       </body>
     </html>
   );
