@@ -24,19 +24,19 @@ if [[ "$DISTRO" != "Ubuntu" || "$VERSION" != "24.04" ]]; then
 fi
 
 if [[ $EUID -eq 0 ]]; then
-  SUDO=""
+  SUDO=()
 else
-  SUDO="sudo"
+  SUDO=(sudo)
 fi
 
 echo "==> Installing system prerequisites"
-$SUDO apt-get update
-$SUDO apt-get install -y ca-certificates curl gnupg git
+"${SUDO[@]}" apt-get update
+"${SUDO[@]}" apt-get install -y ca-certificates curl gnupg git
 
 if ! command -v node >/dev/null 2>&1 || [[ "$(node -v | sed 's/^v//' | cut -d. -f1)" -lt 20 ]]; then
   echo "==> Installing Node.js 20.x"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO -E bash -
-  $SUDO apt-get install -y nodejs
+  curl -fsSL https://deb.nodesource.com/setup_20.x | "${SUDO[@]}" env bash -
+  "${SUDO[@]}" apt-get install -y nodejs
 else
   echo "==> Node.js already installed: $(node -v)"
 fi
