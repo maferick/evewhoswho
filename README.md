@@ -48,7 +48,7 @@ cd evewhoswho
 ./install.sh
 ```
 
-The installer targets Ubuntu 24.04, installs system/runtime prerequisites, installs npm dependencies, and creates `.env` from `.env.example` if needed.
+The installer targets Ubuntu 24.04, installs system/runtime prerequisites, bootstraps dependencies to latest stable releases (`npm-check-updates`, clean install), enforces `npm audit --audit-level=high`, verifies `npm run build`, runs `npm ci` for deterministic installs, and creates `.env` from `.env.example` if needed.
 
 Fill in `.env` values (especially EVE SSO + `SESSION_SECRET`).
 
@@ -67,11 +67,20 @@ Open:
 
 ```bash
 cd app
-npm install
+npm ci
 npm run dev
 ```
 
 If you run from `app/`, the app defaults `DATA_DIR` to `app/data` unless overridden.
+
+
+For CI and local parity, use deterministic dependency installation and the security/build gate:
+
+```bash
+cd app
+npm ci
+npm run ci
+```
 
 ## Environment variables
 
