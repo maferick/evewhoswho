@@ -11,7 +11,13 @@ export default function SeatSourcePage() {
     const response = await fetch(endpoint, { method: 'POST' });
     const payload = (await response.json()) as { ok?: boolean; error?: string; generatedAt?: string };
     if (!response.ok || !payload.ok) {
-      setStatus(`Failed: ${payload.error ?? 'unknown error'}`);
+      const error = payload.error ?? 'unknown error';
+      if (error.includes('Missing required env var: SEAT_BASE_URL') || error.includes('Missing required env var: SEAT_API_KEY')) {
+        setStatus(`Failed: ${error}. Add SEAT_BASE_URL and SEAT_API_KEY to your environment, then restart the app.`);
+        return;
+      }
+
+      setStatus(`Failed: ${error}`);
       return;
     }
 
