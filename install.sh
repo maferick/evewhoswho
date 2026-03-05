@@ -43,7 +43,8 @@ fi
 
 echo "==> Installing npm dependencies"
 cd "$APP_DIR"
-npm install
+npm install --no-audit --no-fund
+echo "   (Tip: run 'cd $APP_DIR && npm audit' anytime to review dependency vulnerabilities.)"
 
 cd "$REPO_ROOT"
 if [[ ! -f "$REPO_ROOT/.env" ]]; then
