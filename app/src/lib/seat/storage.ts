@@ -42,7 +42,7 @@ export function normalizeSeatSnapshot(users: SeatUser[], roles: SeatRole[]): Sea
     users: users.map((user) => ({
       user_id: user.user_id,
       character_ids: user.character_ids ?? [],
-      role_ids: user.group_ids ?? [],
+      role_ids: (user.group_ids ?? []).map((groupId) => Number(groupId)),
     })),
     roles: roles.map((role) => ({
       id: role.id,

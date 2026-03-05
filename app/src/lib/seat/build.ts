@@ -13,41 +13,68 @@ export function buildOrgchartFromSeat(snapshot: SeatSnapshot, mapping: SeatMappi
   const chart = getDefaultOrgchart();
   const corpId = chart.nodes.corporations[0].id;
   const directorateId = 'dir-seat';
+  const unmappedTeamId = 'team_unmapped_seat_roles';
+
+  chart.nodes.corporations = [{ id: corpId, name: process.env.ORG_ROOT_TITLE ?? "Eve Who's Who" }];
 
   chart.nodes.directorates = [{ id: directorateId, name: 'SeAT Roles', corporationId: corpId }];
   chart.nodes.teams = [];
   chart.nodes.roles = [];
 
   const includeRoleSet = new Set(mapping.includeRoles.map((item) => Number(item)));
-
-  const bucketByRole = new Map<number, string>();
-  Object.entries(mapping.roleBuckets).forEach(([bucketId, roleIds]) => {
-    roleIds.forEach((roleId) => bucketByRole.set(Number(roleId), bucketId));
-  });
-
   const teams = new Set<string>();
+  const teamNames = new Map<string, string>();
+  let mappedRoles = 0;
+
+  console.info('[seat/build] counts', {
+    rolesFetched: snapshot.roles.length,
+    usersFetched: snapshot.users.length,
+    includedRoles: includeRoleSet.size,
+    mappedRoles: mapping.includeRoles.filter((roleId) => Boolean(mapping.roleMappings[String(Number(roleId))])).length,
+  });
 
   for (const role of snapshot.roles) {
     if (includeRoleSet.size > 0 && !includeRoleSet.has(role.id)) {
       continue;
     }
 
-    const mappedNodeId = mapping.roleMappings[String(role.id)] ?? `seat_role_${role.id}`;
-    const bucketId = bucketByRole.get(role.id) ?? 'seat_general';
-    const teamId = `team_${slugify(bucketId)}`;
-    const userCount = snapshot.users.filter((user) => user.role_ids.includes(role.id)).length;
+    const roleKey = String(role.id);
+    const mappedNodeId = mapping.roleMappings[roleKey];
+    const teamId = mappedNodeId ? `team_${slugify(mappedNodeId)}` : unmappedTeamId;
+    const roleId = `seat_role_${role.id}`;
+    const normalizedRoleId = Number(role.id);
+    const userCount = snapshot.users.filter((user) => {
+      const groupIds = (user.role_ids ?? []).map((groupId) => Number(groupId));
+      return groupIds.includes(normalizedRoleId);
+    }).length;
+
+    if (mappedNodeId) {
+      mappedRoles += 1;
+    }
 
     teams.add(teamId);
+    teamNames.set(teamId, mappedNodeId ? mappedNodeId.replace(/_/g, ' ') : 'Unmapped SeAT Roles');
     chart.nodes.roles.push({
-      id: mappedNodeId,
+      id: roleId,
       name: `${role.title} (${userCount})`,
       teamId,
     });
+
+    console.info('[seat/build] role members', {
+      roleId: role.id,
+      roleTitle: role.title,
+      members: userCount,
+    });
   }
+
+  console.info('[seat/build] included mapping summary', {
+    includedRoles: includeRoleSet.size,
+    mappedIncludedRoles: mappedRoles,
+  });
 
   chart.nodes.teams = [...teams].map((teamId) => ({
     id: teamId,
-    name: teamId.replace(/^team_/, '').replace(/_/g, ' '),
+    name: teamNames.get(teamId) ?? teamId.replace(/^team_/, '').replace(/_/g, ' '),
     directorateId,
   }));
 
