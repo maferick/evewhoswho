@@ -1,3 +1,5 @@
+import { getRequiredEnv } from '@/lib/env';
+
 const EVE_AUTHORIZE_URL = 'https://login.eveonline.com/v2/oauth/authorize';
 const EVE_TOKEN_URL = 'https://login.eveonline.com/v2/oauth/token';
 const EVE_VERIFY_URL = 'https://login.eveonline.com/oauth/verify';
@@ -18,15 +20,6 @@ export type EveVerifyResponse = {
   CharacterOwnerHash: string;
   IntellectualProperty: string;
 };
-
-function getRequiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-
-  return value;
-}
 
 export function buildAuthorizeUrl(state: string): string {
   const clientId = getRequiredEnv('EVE_SSO_CLIENT_ID');

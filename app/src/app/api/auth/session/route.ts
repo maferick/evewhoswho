@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     authenticated: true,
     characterId: session.characterId,
     characterName: session.characterName,
-    isAdmin: await hasAdminAccess(session.characterId),
+    isAdmin: await hasAdminAccess(session.characterId, session.characterName),
     expiresAt: session.expiresAt,
   });
 }

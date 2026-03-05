@@ -27,7 +27,7 @@
 
 - EVE SSO identifies character
 - Session cookie stores signed auth state
-- Admin endpoints check `permissions.adminCharacterIds`
+- Admin endpoints check `permissions.adminCharacterIds` (plus optional `BOOTSTRAP_ADMIN_CHARACTER_NAME` override for first-time bootstrap)
 - Public viewer routes remain unauthenticated
 
 ## Deployment model

@@ -64,8 +64,9 @@ By default, local runtime stores data under `app/data` unless `DATA_DIR` is set.
 ## First-time admin access checklist
 
 1. Log in once via `/admin` and complete EVE SSO callback.
-2. Add your EVE character ID to `permissions.adminCharacterIds` in the draft config file.
-3. Reload `/admin`; you should now have edit/publish access.
+2. For initial bootstrap, optionally set `BOOTSTRAP_ADMIN_CHARACTER_NAME` in `.env` to your EVE character name.
+3. Add your EVE character ID to `permissions.adminCharacterIds` in the draft config file.
+4. Reload `/admin`; you should now have edit/publish access.
 
 ## Persistent data notes
 
@@ -82,5 +83,5 @@ Ensure `DATA_DIR` points to persistent storage in production so the following su
 ## Troubleshooting
 
 - **"Missing required env var" errors:** verify `.env` values and restart the process/container.
-- **Not admin after successful login:** confirm your character ID is in `permissions.adminCharacterIds`.
+- **Not admin after successful login:** confirm your character ID is in `permissions.adminCharacterIds`, or verify `BOOTSTRAP_ADMIN_CHARACTER_NAME` matches the exact logged-in character name.
 - **Data disappears after restart:** ensure `DATA_DIR` is mounted to a persistent host volume.
