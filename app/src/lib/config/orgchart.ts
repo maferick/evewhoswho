@@ -35,15 +35,37 @@ const PUBLISHED_PATH = path.join(DATA_DIR, 'orgchart.published.json');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 
 let validator: ValidateFunction | null = null;
+let validatorPromise: Promise<ValidateFunction> | null = null;
 
 async function getValidator() {
   if (validator) {
     return validator;
   }
 
-  const schema = JSON.parse(await fs.readFile(SCHEMA_PATH, 'utf8')) as object;
-  validator = ajv.compile(schema);
-  return validator;
+  if (validatorPromise) {
+    return validatorPromise;
+  }
+
+  validatorPromise = (async () => {
+    const schema = JSON.parse(await fs.readFile(SCHEMA_PATH, 'utf8')) as { $id?: string };
+
+    if (schema.$id) {
+      const existing = ajv.getSchema(schema.$id);
+      if (existing) {
+        validator = existing;
+        return existing;
+      }
+    }
+
+    validator = ajv.compile(schema);
+    return validator;
+  })();
+
+  try {
+    return await validatorPromise;
+  } finally {
+    validatorPromise = null;
+  }
 }
 
 function entity(entityId: string, name: string): OrgchartEntity {
