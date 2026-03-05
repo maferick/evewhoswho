@@ -113,6 +113,15 @@ async function readJson(filePath: string): Promise<OrgchartDocument | null> {
   }
 }
 
+export async function hasPublishedOrgchart(): Promise<boolean> {
+  try {
+    await fs.access(PUBLISHED_PATH);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function writeJson(filePath: string, data: OrgchartDocument): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');

@@ -1,6 +1,7 @@
 export {
   getDefaultOrgchart,
   getPublicConfig,
+  hasPublishedOrgchart,
   loadDraftOrgchart,
   saveDraftOrgchart,
   savePublishedOrgchart,

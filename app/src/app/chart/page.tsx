@@ -1,7 +1,8 @@
-import { getPublicConfig } from '@/lib/config';
+import { getPublicConfig, hasPublishedOrgchart } from '@/lib/config';
 
-export default function ChartPage() {
+export default async function ChartPage() {
   const config = getPublicConfig();
+  const hasPublished = await hasPublishedOrgchart();
 
   return (
     <section className="page-shell">
@@ -17,9 +18,11 @@ export default function ChartPage() {
           alt={`${config.chartTitle} example chart`}
           className="chart-image"
         />
-        <figcaption className="muted">
-          Default sample data is rendered until an admin publishes updated chart data.
-        </figcaption>
+        {!hasPublished ? (
+          <figcaption className="muted">
+            Default sample data is rendered until an admin publishes updated chart data.
+          </figcaption>
+        ) : null}
       </figure>
     </section>
   );
