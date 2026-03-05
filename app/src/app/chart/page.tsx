@@ -1,4 +1,4 @@
-import { getPublicConfig, hasPublishedOrgchart } from '@/lib/config';
+import { getPublicConfig, hasPublishedOrgchart } from '@/lib/config/orgchart';
 
 export default async function ChartPage() {
   const config = getPublicConfig();
