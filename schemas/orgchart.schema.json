@@ -3,33 +3,98 @@
   "$id": "https://evewhoswho.local/schemas/orgchart.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["meta", "nodes", "edges", "permissions"],
+  "required": [
+    "meta",
+    "nodes",
+    "edges",
+    "permissions"
+  ],
   "properties": {
     "meta": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["version", "title", "updatedAt"],
+      "required": [
+        "version",
+        "title",
+        "updatedAt"
+      ],
       "properties": {
-        "version": { "type": "integer", "minimum": 1 },
-        "title": { "type": "string", "minLength": 1 },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "nodes": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["roles", "directorates", "teams", "corporations"],
+      "required": [
+        "roles",
+        "directorates",
+        "teams",
+        "corporations"
+      ],
       "properties": {
         "roles": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "teamId"],
+            "required": [
+              "id",
+              "name",
+              "teamId"
+            ],
             "properties": {
-              "id": { "type": "string", "minLength": 1 },
-              "name": { "type": "string", "minLength": 1 },
-              "teamId": { "type": "string", "minLength": 1 }
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "teamId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "members": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "user_id",
+                    "name",
+                    "character_ids"
+                  ],
+                  "properties": {
+                    "user_id": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "character_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -38,11 +103,24 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "corporationId"],
+            "required": [
+              "id",
+              "name",
+              "corporationId"
+            ],
             "properties": {
-              "id": { "type": "string", "minLength": 1 },
-              "name": { "type": "string", "minLength": 1 },
-              "corporationId": { "type": "string", "minLength": 1 }
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "corporationId": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },
@@ -51,11 +129,24 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "directorateId"],
+            "required": [
+              "id",
+              "name",
+              "directorateId"
+            ],
             "properties": {
-              "id": { "type": "string", "minLength": 1 },
-              "name": { "type": "string", "minLength": 1 },
-              "directorateId": { "type": "string", "minLength": 1 }
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "directorateId": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },
@@ -64,10 +155,19 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "properties": {
-              "id": { "type": "string", "minLength": 1 },
-              "name": { "type": "string", "minLength": 1 }
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         }
@@ -78,22 +178,40 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "sourceId", "targetId"],
+        "required": [
+          "id",
+          "sourceId",
+          "targetId"
+        ],
         "properties": {
-          "id": { "type": "string", "minLength": 1 },
-          "sourceId": { "type": "string", "minLength": 1 },
-          "targetId": { "type": "string", "minLength": 1 }
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
     "permissions": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["adminCharacterIds"],
+      "required": [
+        "adminCharacterIds"
+      ],
       "properties": {
         "adminCharacterIds": {
           "type": "array",
-          "items": { "type": "integer", "minimum": 1 },
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
           "uniqueItems": true
         }
       }

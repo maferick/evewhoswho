@@ -4,6 +4,34 @@ import { requireAdminSession } from '@/lib/auth';
 import { SeatClient } from '@/lib/seat/client';
 import { normalizeSeatSnapshot, writeSeatSnapshot } from '@/lib/seat/storage';
 
+const ROLE_DETAIL_CONCURRENCY = 8;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  if (items.length === 0) {
+    return [];
+  }
+
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker(): Promise<void> {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+    }
+  }
+
+  const workerCount = Math.min(limit, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+  return results;
+}
+
 export async function POST(req: NextRequest) {
   const session = await requireAdminSession(req);
   if (!session) {
@@ -13,7 +41,8 @@ export async function POST(req: NextRequest) {
   try {
     const client = new SeatClient();
     const [users, roles] = await Promise.all([client.getAllUsersPaginated(), client.getAllRolesPaginated()]);
-    const snapshot = normalizeSeatSnapshot(users, roles);
+    const roleDetails = await mapWithConcurrency(roles, ROLE_DETAIL_CONCURRENCY, (role) => client.getRoleDetail(role.id));
+    const snapshot = normalizeSeatSnapshot(users, roles, roleDetails);
     const output = await writeSeatSnapshot(snapshot);
 
     return NextResponse.json({

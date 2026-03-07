@@ -44,6 +44,11 @@ export type OrgchartEntity = {
 
 export type OrgchartRole = OrgchartEntity & {
   teamId: string;
+  members?: Array<{
+    user_id: number;
+    name: string;
+    character_ids: number[];
+  }>;
 };
 
 export type OrgchartTeam = OrgchartEntity & {

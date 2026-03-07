@@ -44,19 +44,16 @@ export function buildOrgchartFromSeat(snapshot: SeatSnapshot, mapping: SeatMappi
   });
 
   for (const role of snapshot.roles) {
-    if (includeRoleSet.size > 0 && !includeRoleSet.has(role.id)) {
+    if (includeRoleSet.size > 0 && !includeRoleSet.has(role.roleId)) {
       continue;
     }
 
-    const roleKey = String(role.id);
+    const roleKey = String(role.roleId);
     const mappedNodeId = mapping.roleMappings[roleKey];
     const teamId = mappedNodeId ? `team_${slugify(mappedNodeId)}` : unmappedTeamId;
-    const roleId = `seat_role_${role.id}`;
-    const normalizedRoleId = Number(role.id);
-    const userCount = snapshot.users.filter((user) => {
-      const groupIds = (user.role_ids ?? []).map((groupId) => Number(groupId));
-      return groupIds.includes(normalizedRoleId);
-    }).length;
+    const roleId = `seat_role_${role.roleId}`;
+    const members = role.members ?? [];
+    const memberNames = members.map((member) => member.name).join('\n');
 
     if (mappedNodeId) {
       mappedRoles += 1;
@@ -66,14 +63,15 @@ export function buildOrgchartFromSeat(snapshot: SeatSnapshot, mapping: SeatMappi
     teamNames.set(teamId, mappedNodeId ? mappedNodeId.replace(/_/g, ' ') : 'Unmapped SeAT Roles');
     chart.nodes.roles.push({
       id: roleId,
-      name: `${role.title} (${userCount})`,
+      name: memberNames ? `${role.roleTitle} (${members.length})\n${memberNames}` : `${role.roleTitle} (${members.length})`,
       teamId,
+      members,
     });
 
     logSeatBuildDebug('[seat/build] role members', {
-      roleId: role.id,
-      roleTitle: role.title,
-      members: userCount,
+      roleId: role.roleId,
+      roleTitle: role.roleTitle,
+      members: members.length,
     });
   }
 
