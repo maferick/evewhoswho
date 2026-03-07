@@ -80,7 +80,9 @@ function toGraph(orgchart: OrgchartDocument): { nodes: RenderNode[]; edges: Rend
   const nodes: RenderNode[] = [];
 
   const push = (kind: RenderNode['kind'], id: string, label: string) => {
-    const node: RenderNode = { id, label, x: 0, y: 0, width: 180, height: 56, kind };
+    const lineCount = Math.max(1, label.split('\n').filter((line) => line.trim().length > 0).length);
+    const height = kind === 'role' ? Math.max(56, 56 + (lineCount - 1) * 16) : 56;
+    const node: RenderNode = { id, label, x: 0, y: 0, width: 180, height, kind };
     byId.set(id, node);
     nodes.push(node);
   };
@@ -133,9 +135,17 @@ function buildSvg(orgchart: OrgchartDocument, hash: string): string {
     .map((node) => {
       const x = node.x - node.width / 2;
       const y = node.y - node.height / 2;
+      const lines = node.label.split('\n').filter((line) => line.trim().length > 0);
+      const textLines = lines.length > 0 ? lines : [node.label];
+      const startY = node.y - ((textLines.length - 1) * 16) / 2 + 5;
+      const tspans = textLines
+        .map((line, index) => `<tspan x="${node.x}" y="${startY + index * 16}">${escapeXml(line)}</tspan>`)
+        .join('');
+
+      const nodeY = node.y - node.height / 2;
       return `<g id="node-${escapeXml(node.id)}" data-kind="${node.kind}">
-      <rect x="${x}" y="${y}" width="${node.width}" height="${node.height}" rx="10" ry="10" fill="${COLORS[node.kind]}"/>
-      <text x="${node.x}" y="${node.y + 5}" text-anchor="middle" fill="#f8fafc" font-size="14" font-family="Inter, Segoe UI, Roboto, Arial, sans-serif">${escapeXml(node.label)}</text>
+      <rect x="${x}" y="${nodeY}" width="${node.width}" height="${node.height}" rx="10" ry="10" fill="${COLORS[node.kind]}"/>
+      <text text-anchor="middle" fill="#f8fafc" font-size="14" font-family="Inter, Segoe UI, Roboto, Arial, sans-serif">${tspans}</text>
     </g>`;
     })
     .join('\n    ');

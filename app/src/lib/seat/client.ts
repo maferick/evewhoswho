@@ -3,7 +3,7 @@ import { ensureServerEnv } from '@/lib/env/server-env';
 export type SeatUser = {
   user_id: number;
   character_ids: number[];
-  group_ids: number[];
+  name?: string;
 };
 
 export type SeatRole = {
@@ -18,6 +18,21 @@ type SeatPage<T> = {
     next?: string | null;
   };
 };
+
+export type SeatRoleDetailUser = {
+  user_id: number;
+  name?: string;
+  character_ids?: number[];
+};
+
+export type SeatRoleDetail = {
+  id: number;
+  permissions?: unknown[];
+  affiliations?: unknown[];
+  users?: SeatRoleDetailUser[];
+};
+
+type SeatRoleDetailResponse = SeatRoleDetail | { data?: SeatRoleDetail };
 
 function getSeatBaseUrl(): string {
   ensureServerEnv();
@@ -49,7 +64,7 @@ export class SeatClient {
     this.token = token;
   }
 
-  private async request<T>(pathOrUrl: string): Promise<SeatPage<T>> {
+  private async request<T>(pathOrUrl: string): Promise<T> {
     const url = pathOrUrl.startsWith('http') ? pathOrUrl : `${this.baseUrl}${pathOrUrl}`;
     const response = await fetch(url, {
       headers: {
@@ -63,15 +78,27 @@ export class SeatClient {
       throw new Error(`SeAT request failed (${response.status}): ${url}`);
     }
 
-    return (await response.json()) as SeatPage<T>;
+    return (await response.json()) as T;
   }
 
   async getUsers(pathOrUrl = '/api/v2/users'): Promise<SeatPage<SeatUser>> {
-    return this.request<SeatUser>(pathOrUrl);
+    return this.request<SeatPage<SeatUser>>(pathOrUrl);
   }
 
   async getRoles(pathOrUrl = '/api/v2/roles'): Promise<SeatPage<SeatRole>> {
-    return this.request<SeatRole>(pathOrUrl);
+    return this.request<SeatPage<SeatRole>>(pathOrUrl);
+  }
+
+  async getRoleDetail(roleId: number): Promise<SeatRoleDetail> {
+    const response = await this.request<SeatRoleDetailResponse>(`/api/v1/role/detail/${roleId}`);
+    const detail = 'data' in response ? (response.data ?? { id: roleId }) : response;
+
+    return {
+      id: Number(detail.id ?? roleId),
+      permissions: detail.permissions ?? [],
+      affiliations: detail.affiliations ?? [],
+      users: Array.isArray(detail.users) ? detail.users : [],
+    };
   }
 
   async getAllUsersPaginated(): Promise<SeatUser[]> {

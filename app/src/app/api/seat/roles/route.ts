@@ -14,5 +14,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'No SeAT snapshot found. Run sync first.' }, { status: 400 });
   }
 
-  return NextResponse.json({ ok: true, data: snapshot.roles });
+  return NextResponse.json({
+    ok: true,
+    data: snapshot.roles.map((role) => ({
+      id: role.roleId,
+      title: role.roleTitle,
+      description: role.description,
+    })),
+  });
 }

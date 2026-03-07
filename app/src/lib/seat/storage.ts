@@ -1,18 +1,23 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import type { SeatRole, SeatUser } from '@/lib/seat/client';
+import type { SeatRole, SeatRoleDetail, SeatUser } from '@/lib/seat/client';
 
 export type SeatSnapshot = {
   users: Array<{
     user_id: number;
     character_ids: number[];
-    role_ids: number[];
+    name?: string;
   }>;
   roles: Array<{
-    id: number;
-    title: string;
+    roleId: number;
+    roleTitle: string;
     description: string;
+    members: Array<{
+      user_id: number;
+      name: string;
+      character_ids: number[];
+    }>;
   }>;
   generated_at: string;
 };
@@ -37,18 +42,30 @@ const DEFAULT_MAPPING: SeatMapping = {
   roleBuckets: {},
 };
 
-export function normalizeSeatSnapshot(users: SeatUser[], roles: SeatRole[]): SeatSnapshot {
+export function normalizeSeatSnapshot(users: SeatUser[], roles: SeatRole[], roleDetails: SeatRoleDetail[]): SeatSnapshot {
+  const detailsByRoleId = new Map<number, SeatRoleDetail>(roleDetails.map((detail) => [Number(detail.id), detail]));
+
   return {
     users: users.map((user) => ({
       user_id: user.user_id,
       character_ids: user.character_ids ?? [],
-      role_ids: (user.group_ids ?? []).map((groupId) => Number(groupId)),
+      name: user.name,
     })),
-    roles: roles.map((role) => ({
-      id: role.id,
-      title: role.title,
-      description: role.description,
-    })),
+    roles: roles.map((role) => {
+      const detail = detailsByRoleId.get(Number(role.id));
+      const members = Array.isArray(detail?.users) ? detail.users : [];
+
+      return {
+        roleId: role.id,
+        roleTitle: role.title,
+        description: role.description,
+        members: members.map((member) => ({
+          user_id: Number(member.user_id),
+          name: member.name ?? String(member.user_id),
+          character_ids: (member.character_ids ?? []).map((characterId) => Number(characterId)),
+        })),
+      };
+    }),
     generated_at: new Date().toISOString(),
   };
 }
